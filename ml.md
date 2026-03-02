@@ -1,3 +1,6 @@
+<details>
+    <summary>CAT...</summary>
+
 # SECTION A
 
 ## QUESTION 1 (COMPULSORY) - 10 marks
@@ -673,3 +676,274 @@ tree.plot_tree(dt_model, feature_names=X.columns, class_names=['Low', 'High'],
 plt.title('Decision Tree Visualization')
 plt.show()
 ```
+
+</details>
+
+<br /><hr /><br />
+
+<details>
+    <summary>Exam...</summary>
+
+This final exam for Machine Learning module at the University of Kigali covers a broad range of topics, from supervised regression and classification to unsupervised clustering, reinforcement learning, and deep learning.
+
+---
+
+## SECTION A (Compulsory)
+
+### QUESTION 1: Salary Prediction (Linear Regression)
+
+This question focuses on data preprocessing and building a linear model to handle missing data .
+
+a) Data Preparation and Preprocessing :
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+
+# 1. Load data into DataFrame
+data = {
+    'YearsExperience': [1.0, 2.5, 3.0, 4.0, np.nan, 6.0, 7.0, 8.5, 9.0, 10.0],
+    'EducationLevel': ['Bachelor', 'Master', 'Bachelor', 'PhD', 'Bachelor', 'Master', 'PhD', 'Bachelor', 'Master', 'PhD'],
+    'Salary': [40000, 48000, np.nan, 62000, 58000, 72000, np.nan, 85000, 90000, np.nan]
+}
+df = pd.DataFrame(data)
+
+# 2. Handle missing values using mean imputation
+df['YearsExperience'] = df['YearsExperience'].fillna(df['YearsExperience'].mean())
+df['Salary'] = df['Salary'].fillna(df['Salary'].mean())
+
+# 3. Convert categorical EducationLevel to numerical using Label Encoding
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+df['EducationLevel'] = le.fit_transform(df['EducationLevel'])
+
+# Display processed data
+print("Processed Dataset (First 10 rows):")
+print(df.head(10))
+
+```
+
+b) Model Training :
+
+```python
+# Select features and target
+X = df[['YearsExperience', 'EducationLevel']]
+y = df['Salary']
+
+# Split data (20% test size, random_state for reproducibility)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create and train Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+```
+
+c) Evaluation and Visualization :
+
+```python
+# Predict and compare
+y_pred = model.predict(X_test)
+comparison = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+print("\nActual vs Predicted Salary:")
+print(comparison.head())
+
+# Metrics
+print(f"MSE: {mean_squared_error(y_test, y_pred):.2f}")
+print(f"R2 Score: {r2_score(y_test, y_pred):.2f}")
+
+# Visualization
+plt.scatter(X_test['YearsExperience'], y_test, color='blue', label='Actual')
+plt.plot(X_test['YearsExperience'], y_pred, color='red', linewidth=2, label='Regression Line')
+plt.xlabel('Years of Experience')
+plt.ylabel('Salary')
+plt.title('Experience vs Salary (Test Set)')
+plt.legend()
+plt.show()
+
+```
+
+---
+
+## SECTION B (Choose Any Three)
+
+### QUESTION 2: Cardiovascular Risk Classification (SVM)
+
+This task uses Support Vector Machines to classify health risks based on blood pressure and cholesterol .
+
+(i) Feature Selection and Splitting :
+
+```python
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Features and target
+X = df[['Systolic_BP', 'Cholesterol']]
+y = df['Risk']
+
+# Split 30% for testing
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+```
+
+(ii) SVM Training :
+
+```python
+# Linear Kernel SVM
+svm_model = SVC(kernel='linear')
+svm_model.fit(X_train, y_train)
+
+```
+
+(iii) Evaluation :
+
+```python
+y_pred = svm_model.predict(X_test)
+print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+```
+
+### QUESTION 3: Customer Segmentation (K-means)
+
+Unsupervised clustering to group retail customers by income and spending behavior .
+
+i. Elbow Method :
+
+```python
+from sklearn.cluster import KMeans
+
+wcss = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
+    kmeans.fit(df[['Exercise_Hours', 'Calorie_Intake']]) # Using features provided in script
+    wcss.append(kmeans.inertia_)
+
+plt.plot(range(1, 11), wcss, marker='o')
+plt.title('Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')
+plt.show()
+
+```
+
+ii & iii. Training and Visualization :
+
+```python
+# Assuming optimal clusters = 3 from elbow plot
+optimal_k = 3
+kmeans = KMeans(n_clusters=optimal_k, random_state=42)
+df['Cluster'] = kmeans.fit_predict(df[['Exercise_Hours', 'Calorie_Intake']])
+
+# Plot clusters and centroids
+plt.scatter(df['Exercise_Hours'], df['Calorie_Intake'], c=df['Cluster'], cmap='viridis')
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=300, c='red', marker='X', label='Centroids')
+plt.title('Customer Segments')
+plt.legend()
+plt.show()
+
+```
+
+### QUESTION 4: Course Enrollment (Decision Tree)
+
+Predicting student enrollment using age, study hours, and completed courses .
+
+i, ii & iii. Pipeline :
+
+```python
+from sklearn.tree import DecisionTreeClassifier
+
+X = df[['Age', 'Weekly_Study_Hours', 'Completed_Courses']]
+y = df['Enrolled']
+
+# 80/20 Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train and Predict
+dt_model = DecisionTreeClassifier()
+dt_model.fit(X_train, y_train)
+y_pred = dt_model.predict(X_test)
+
+```
+
+### QUESTION 5: Reinforcement Learning (Q-Learning)
+
+The agent learns to navigate a 4x4 grid to reach a goal at coordinate (3,3) .
+
+a) Q-table Initialization :
+
+```python
+num_states = grid_size * grid_size  # 16
+num_actions = 4  # Up, Down, Left, Right
+q_table = np.zeros((num_states, num_actions))
+
+```
+
+b) Training Loop :
+
+```python
+alpha, gamma, epsilon = 0.1, 0.9, 0.1
+for episode in range(1000):
+    state = 0 # Starting index
+    done = False
+    while not done:
+        # Epsilon-greedy selection
+        if np.random.uniform(0, 1) < epsilon:
+            action = np.random.randint(num_actions)
+        else:
+            action = np.argmax(q_table[state])
+        
+        # Take action, get reward and next_state (Simplified logic)
+        next_state = move(state, action) # Logic for grid boundaries
+        reward = rewards[next_state]
+        
+        # Update Q-value
+        q_table[state, action] = q_table[state, action] + alpha * (reward + gamma * np.max(q_table[next_state]) - q_table[state, action])
+        
+        state = next_state
+        if state == goal_index: done = True
+
+```
+
+### QUESTION 6: Pattern Classification (CNN)
+
+Using a Deep Learning framework to distinguish between diagonal stripes and checkerboards .
+
+a & b) Architecture and Training :
+
+```python
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+model = models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(1, activation='sigmoid') # Binary classification
+])
+
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=10, batch_size=32)
+
+```
+
+c) Evaluation :
+
+```python
+test_loss, test_acc = model.evaluate(X_test, y_test)
+print(f"Test Accuracy: {test_acc}")
+
+# Simple visualization of predictions
+predictions = model.predict(X_test[:5])
+# ... plotting logic for images ...
+
+```
+
+</details>
+
